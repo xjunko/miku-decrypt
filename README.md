@@ -2,7 +2,7 @@
 
 ## The fuck is this
 
-a "clean room" implementation of tearlesshen's script just because I can.
+An attempt to create a "clean room" implementation of TearlessHen's scripts. (RIP Channel)
 
 ## How to use
 

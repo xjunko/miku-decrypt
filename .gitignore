@@ -127,3 +127,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Project specific
+cache/*
+data/*
+motions/*
+unity/*
