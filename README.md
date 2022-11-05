@@ -7,3 +7,14 @@ An attempt to create a "clean room" implementation of TearlessHen's scripts. (RI
 ## How to use
 
 :trollface:
+
+## Scripts
+
+```path
+.
+|   ├── ext
+|       ├── encryptor.py
+|       └── decryptor.py
+|
+└── main.py
+```
