@@ -1,8 +1,5 @@
-import struct
-
-
 class BinaryDeserialize:
-    def __init__(self, data: bytes):
+    def __init__(self, data: bytes) -> None:
         self.data = data
         self.i = 0
 
@@ -10,7 +7,7 @@ class BinaryDeserialize:
         if self.i >= len(self.data):
             return None
 
-        c = self.data[self.i]
+        c: int = self.data[self.i]
 
         if 0x00 <= c < 0x80:
             self.i += 1
@@ -42,7 +39,9 @@ class BinaryDeserialize:
 
         if c == 0xCA:
             self.i += 1
-            return self._float()
+            raise AssertionError(
+                "Received type: float"
+            )  # I might have to handle this properly soon.
 
         if c == 0xCC:
             self.i += 1
@@ -76,57 +75,31 @@ class BinaryDeserialize:
             self.i += 1
             return self._dict(self._uint(2))
 
-        raise NotImplementedError(c)
+        raise NotImplementedError(f"Invalid type: {c}")
 
-    def _dict(self, size):
+    def _dict(self, size: int) -> dict[any, any]:
         s = self._list(size * 2)
         return {key: value for key, value in zip(s[0::2], s[1::2])}
 
-    def _list(self, size):
+    def _list(self, size: int) -> list[any]:
         return [self.process() for _ in range(size)]
 
-    def _str(self, size):
+    def _str(self, size: int) -> str:
         s = self.data[self.i : self.i + size].decode()
         self.i += size
         return s
 
-    def _int(self, size):
+    def _uint(self, size: int) -> int:
         s = self.data[self.i : self.i + size]
         self.i += size
 
         if size == 1:
-            return struct.unpack(">b", s)[0]
+            return int.from_bytes(s, "little")
         if size == 2:
-            return struct.unpack(">h", s)[0]
+            return int.from_bytes(s, "big")
         if size == 4:
-            return struct.unpack(">l", s)[0]
+            return int.from_bytes(s, "big")
         if size == 8:
-            return struct.unpack(">q", s)[0]
+            return int.from_bytes(s, "big")
 
-        raise NotImplementedError()
-
-    def _uint(self, size):
-        s = self.data[self.i : self.i + size]
-        self.i += size
-
-        if size == 1:
-            return struct.unpack(">B", s)[0]
-        if size == 2:
-            return struct.unpack(">H", s)[0]
-        if size == 4:
-            return struct.unpack(">L", s)[0]
-        if size == 8:
-            return struct.unpack(">Q", s)[0]
-
-        raise NotImplementedError()
-
-    def _float(self, size=4):
-        s = self.data[self.i : self.i + size]
-        self.i += size
-
-        if size == 4:
-            return float("%g" % struct.unpack(">f", s)[0])
-        if size == 8:
-            return struct.unpack(">d", s)[0]
-
-        raise NotImplementedError()
+        raise NotImplementedError(f"Unhandled unsigned integer size: {size=}")
